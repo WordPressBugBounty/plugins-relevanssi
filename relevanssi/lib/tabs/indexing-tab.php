@@ -55,7 +55,7 @@ function relevanssi_indexing_tab() {
 	}
 
 	$this_page  = '?page=' . plugin_basename( $relevanssi_variables['file'] );
-	$update_url = wp_nonce_url( $this_page . '&rlv_tab=indexing&update_counts=1', 'update_counts' );
+	$update_url = wp_nonce_url( $this_page . '&rlv_tab=indexing&update_counts=1', 'relevanssi_update_counts' );
 
 	$user_count    = get_option( 'relevanssi_user_count', 0 );
 	$taxterm_count = get_option( 'relevanssi_taxterm_count', 0 );
@@ -483,7 +483,7 @@ function relevanssi_indexing_tab() {
 		<h1 class="wp-heading-inline"><?php esc_html_e( 'Indexing Settings', 'relevanssi' ); ?></h1>
 
 		<?php
-		if ( count( $index_post_types ) < 2 ) {
+		if ( count( $index_post_types ) < 1 ) {
 			$index_users      = get_option( 'relevanssi_index_users', 'off' );
 			$index_taxonomies = get_option( 'relevanssi_index_taxonomies', 'off' );
 			if ( 'off' === $index_users && 'off' === $index_taxonomies ) {

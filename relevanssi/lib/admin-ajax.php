@@ -489,7 +489,7 @@ function relevanssi_admin_search_format_posts( $posts, $total, $offset, $query )
 		$post_element .= '</div>';
 
 		if ( ! empty( $post->post_excerpt ) ) {
-			$post_element .= '<div class="relevanssi-result-excerpt" style="font-size: 13.5px; line-height: 1.6; color: #4f565d; border-top: 1px solid #f0f0f1; padding-top: 10px; margin: 0;">' . $post->post_excerpt . '</div>';
+			$post_element .= '<div class="relevanssi-result-excerpt" style="font-size: 13.5px; line-height: 1.6; color: #4f565d; border-top: 1px solid #f0f0f1; padding-top: 10px; margin: 0;">' . wp_kses_post( $post->post_excerpt ) . '</div>';
 		}
 		$post_element .= '</li>';
 
@@ -652,12 +652,11 @@ function relevanssi_admin_search_debugging_info( $query ) {
 function relevanssi_update_counts() {
 	global $wpdb, $relevanssi_variables;
 
-	if ( ! current_user_can( 'manage_options' ) ) {
+	if ( ! defined( 'DOING_CRON' ) && ! current_user_can( 'manage_options' ) ) {
 		die();
 	}
 
-	check_admin_referer( 'update_counts', '_wpnonce' );
-
+	! defined( 'DOING_CRON' ) && check_admin_referer( 'relevanssi_update_counts', '_wpnonce' );
 	relevanssi_update_doc_count();
 
 	$terms_count = $wpdb->get_var( 'SELECT COUNT(*) FROM ' . $relevanssi_variables['relevanssi_table'] );  // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQL.NotPrepared
