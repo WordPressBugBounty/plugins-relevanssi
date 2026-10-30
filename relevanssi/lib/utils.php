@@ -965,6 +965,89 @@ function relevanssi_post_password_required( $post ): bool {
 }
 
 /**
+ * Returns a list of allowed query arguments
+ *
+ * This list is used in admin search argument parsing and is filtered with the
+ * relevanssi_query_arg_allowlist filter hook.
+ *
+ * @return array Allowlist of query arguments.
+ */
+function relevanssi_query_arg_allowlist() {
+	$args_allowlist = array(
+		'author__in',
+		'author__not_in',
+		'author_name',
+		'author',
+		'by_date',
+		'cat',
+		'category__and',
+		'category__in',
+		'category__not_in',
+		'category_name',
+		'cats',
+		'customfield_key',
+		'customfield_value',
+		'date_query',
+		'day',
+		'fields',
+		'hour',
+		'include_attachments',
+		'm',
+		'meta_compare',
+		'meta_key',
+		'meta_query',
+		'meta_value_num',
+		'meta_value',
+		'minute',
+		'monthnum',
+		'name',
+		'offset',
+		'operator',
+		'order',
+		'orderby',
+		'p',
+		'page_id',
+		'paged',
+		'pagename',
+		'post__in',
+		'post__not_in',
+		'post_mime_type',
+		'post_name__in',
+		'post_parent__in',
+		'post_parent__not_in',
+		'post_parent',
+		'post_status',
+		'post_type',
+		'post_types',
+		'posts_per_page',
+		'rlv_source',
+		's',
+		'second',
+		'sentence',
+		'showposts',
+		'tag__and',
+		'tag__in',
+		'tag__not_in',
+		'tag_id',
+		'tag_slug__and',
+		'tag_slug__not_in',
+		'tag',
+		'tags',
+		'tax_query',
+		'title',
+		'w',
+		'year',
+	);
+
+	/**
+	 * Filters the list of allowed query arguments.
+	 *
+	 * @param array $args_allowlist An allowlist of query arguments.
+	 */
+	return apply_filters( 'relevanssi_query_arg_allowlist', $args_allowlist );
+}
+
+/**
  * Removes quotes (", ”, “) from a string.
  *
  * @param string $str The string to clean.
@@ -1451,12 +1534,11 @@ function relevanssi_the_tags( string $before = '', string $separator = ', ', str
 			$highlighted_tag_name = relevanssi_highlight_terms( $tag_names[ $i ], get_search_query(), true );
 			$highlighted[ $i ]    = str_replace( '>' . $tag_names[ $i ] . '<', '>' . $highlighted_tag_name . '<', $originals[ $i ] );
 		}
-
 		$tag_list = str_replace( $originals, $highlighted, $tag_list );
 	}
 
 	if ( $echoed ) {
-		echo $tag_list; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo wp_kses_post( $tag_list );
 	} else {
 		return $tag_list;
 	}
