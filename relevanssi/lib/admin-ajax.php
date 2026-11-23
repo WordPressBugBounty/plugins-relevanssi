@@ -218,6 +218,21 @@ function relevanssi_admin_search() {
 		$parsed_args = wp_slash( $parsed_args );
 
 		$args_allowlist = relevanssi_query_arg_allowlist();
+		if ( ! current_user_can( 'edit_others_posts' ) ) {
+			/**
+			 * By default, only users with 'edit_others_posts' capabilities can
+			 * use meta queries in the Relevanssi admin search. This is because
+			 * meta queries can be used to perform a blind oracle attack to
+			 * read secrets from custom fields.
+			 *
+			 * @param bool $allow If true, meta queries are allowed.
+			 */
+			if ( ! apply_filters( 'relevanssi_allow_meta_queries_in_admin_search', false ) ) {
+				unset( $parsed_args['meta_query'] );
+				unset( $parsed_args['meta_key'] );
+				unset( $parsed_args['meta_value'] );
+			}
+		}
 
 		foreach ( $args_allowlist as $arg ) {
 			if ( isset( $parsed_args[ $arg ] ) ) {
@@ -663,11 +678,11 @@ function relevanssi_admin_search_debugging_info( $query ) {
 function relevanssi_update_counts() {
 	global $wpdb, $relevanssi_variables;
 
-	if ( ! defined( 'DOING_CRON' ) && ! current_user_can( 'manage_options' ) ) {
+	if ( ! defined( 'DOING_CRON' ) && ! current_user_can( 'manage_options' ) && ! defined( 'WP_CLI' ) ) {
 		die();
 	}
 
-	! defined( 'DOING_CRON' ) && check_admin_referer( 'relevanssi_update_counts', '_wpnonce' );
+	! defined( 'DOING_CRON' ) && ! defined( 'WP_CLI' ) && check_admin_referer( 'relevanssi_update_counts', '_wpnonce' );
 	relevanssi_update_doc_count();
 
 	$terms_count = $wpdb->get_var( 'SELECT COUNT(*) FROM ' . $relevanssi_variables['relevanssi_table'] );  // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQL.NotPrepared
